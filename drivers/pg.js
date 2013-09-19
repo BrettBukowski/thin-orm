@@ -1,9 +1,11 @@
 function createPgDriver(context, options) {
+    var pg = options.pg;
+    var connectString = options.connect;
 
     return  {
         query: function (query, parameters, id, callback) {
             var self = context;
-            options.pg.connect(function (err, client) {
+            pg.connect(connectString, function (err, client, done) {
                 if (err) {
                     self.logger('cannot connect to postgresql: ' + err);
                 } else {
@@ -12,6 +14,7 @@ function createPgDriver(context, options) {
                             self.logger('query on ' + id + ':\n\ttext: ' + query + JSON.stringify(parameters) + '\n\tfailed: ' + err);
                         else
                             self.logger('query on ' + id + ':\n\ttext: ' + query + '\n\tparams: ' + JSON.stringify(parameters) + '\n\treturns ' + JSON.stringify(result.rows));
+                        done();
                         callback(err, result);
                     });
                 }
